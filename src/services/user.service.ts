@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import prisma from "../config/database";
-import { hashPassword } from "../utils/hash";
+import { comparePassword, hashPassword } from "../utils/hash";
+import { generateToken } from "../utils/jwt";
 
 export const createUser = async (data : {name : string,email : string,password : string,role? : Role}) => {
     const {name,email,password,role} = data;
@@ -19,3 +20,19 @@ export const createUser = async (data : {name : string,email : string,password :
         }
     })   
 }
+
+export const loginUser = async (data: { email: string; password: string }) => {
+  const { email, password } = data;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new Error("Invalid Email or Password");
+
+  const match = await comparePassword(password, user.password);
+  if (!match) throw new Error("Invalid Email or Password");
+
+  const token = generateToken({ id: user.id, role: user.role });
+
+  const { password: _, ...safeUser } = user;
+
+  return { token, user: safeUser };
+}; 

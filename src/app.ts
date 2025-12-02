@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from "cors"
 import UserRoute from "./routes/user.route"
+import TodoRoute from "./routes/todo.route"
 
 
 const app = express();
@@ -10,5 +11,6 @@ app.use(cors())
 app.use(express.urlencoded({extended : true}));
 
 app.use("/api/v1",UserRoute)
+app.use("/api/v1",TodoRoute)
 
 export default app
